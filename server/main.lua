@@ -40,17 +40,35 @@ if Config.UseRPName then
     Framework.Object = nil -- free up the memory
 end
 
-local function getPlayerIdentifier(source)
-    local identifier
-    for _, v in ipairs(GetPlayerIdentifiers(source)) do
-        if string.match(v, "license:") then
-            identifier = string.gsub(v, "license:", "")
-            break
-        end
-    end
-    return identifier
+-- local function getPlayerIdentifier(source)
+    -- local identifier
+    -- for _, v in ipairs(GetPlayerIdentifiers(source)) do
+        -- if string.match(v, "license:") then
+            -- identifier = string.gsub(v, "license:", "")
+            -- break
+        -- end
+    -- end
+    -- return identifier
+-- end
+
+function GetPlayerIdentifierFromType(type, source)
+	local identifiers = {}
+	local identifierCount = GetNumPlayerIdentifiers(source)
+
+	for a = 0, identifierCount do
+		table.insert(identifiers, GetPlayerIdentifier(source, a))
+	end
+
+	for b = 1, #identifiers do
+		if string.find(identifiers[b], type, 1) then
+			return identifiers[b]
+		end
+	end
+	return nil
 end
 
+--GetPlayerIdentifierFromType("license", playersource)
+   
 local function refreshRadioForPlayer(source)
     local currentRadioChannel = Player(source).state.radioChannel
     if not currentRadioChannel or not (currentRadioChannel > 0) then return end
@@ -62,7 +80,7 @@ end
 local function setPlayerName(source, newName)
     local currentName = Player(source).state[Shared.State.nameInRadio]
     if currentName and currentName == newName then return end
-    customPlayerNames[getPlayerIdentifier(source)] = newName
+    customPlayerNames[GetPlayerIdentifierFromType("license", source)] = newName
     Player(source).state:set(Shared.State.nameInRadio, newName, true)
     refreshRadioForPlayer(source)
     Config.Notification(source, ("Your name on radio changed to %s"):format(newName))
@@ -71,7 +89,7 @@ end
 local function getPlayerName(source)
     local playerName = Player(source).state[Shared.State.nameInRadio]
     if not playerName then
-        playerName = customPlayerNames[getPlayerIdentifier(source)] or (Config.UseRPName and Framework.GetPlayerName(source)) or GetPlayerName(source)
+        playerName = customPlayerNames[GetPlayerIdentifierFromType("license", source)] or (Config.UseRPName and Framework.GetPlayerName(source)) or GetPlayerName(source)
         setPlayerName(source, playerName)
     end
     return playerName
@@ -84,7 +102,7 @@ local function resetPlayerName(source)
 end
 
 local function getRadioChannelName(radioChannel)
-    return customRadioNames[tostring(radioChannel)] or Config.RadioChannelsWithName[tostring(radioChannel)] or Config.RadioChannelsWithName[tostring(math.floor(radioChannel))] or radioChannel
+    return customRadioNames[tostring(radioChannel)] or Config.RadioChannelsWithName[tostring(math.floor(radioChannel))] or radioChannel
 end
 
 local function modifyPermissionToSeeRadioList(source, state)
@@ -148,7 +166,7 @@ end
 
 local function onPlayerDropped(source)
     if Config.ResetPlayersCustomizedNameOnExit then
-        local playerIdentifier = getPlayerIdentifier(source)
+        local playerIdentifier = GetPlayerIdentifierFromType("license", source)
         if customPlayerNames[playerIdentifier] then
             customPlayerNames[playerIdentifier] = nil
             Player(source).state:set(Shared.State.nameInRadio, nil, true)
