@@ -33,6 +33,15 @@ Config.RadioChannelsWithName = {
     ["0"] = "Admin",                                    -- Every channels between 0 and 1 will be named "Admin"
     ["1"] = "Police",                                   -- Every channels between 1 and 2 will be named "Police"
     ["2"] = "Ambulance",                                -- Every channels between 2 and 3 will be named "Ambulance"
+    ["400"]  = "Bad Request",
+    ["401"]  = "Unauthorized",
+    ["403"]  = "Forbidden",
+    ["404"]  = "Channel Not Found",
+    ["418"]  = "I'm A Teapot",
+    ["429"]  = "Too Many Requests",
+    ["451"]  = "Unavailable For Legal Reasons",
+    ["500"]  = "Internal Server Error",
+    --["XXX"]  = "EXAMPLE",
 }
 
 Config.Notification = function(source, message, type)
